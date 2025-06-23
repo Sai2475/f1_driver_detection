@@ -84,7 +84,7 @@ If the person in the image is **not** an F1 driver or the face is not clearly vi
         print("API error", response.text)
         return "UNKNOWN"
 def main():
-    image_path = "ney.jpg"
+    image_path = "lewis.jpg"
     if not os.path.exists(image_path):
         print(f"Image Not Found: {image_path}")
         return
