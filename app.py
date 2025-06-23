@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import os
 import cv2
 import numpy as np
@@ -10,7 +10,7 @@ UPLOAD_FOLDER = os.path.join('static', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-GROQ_API_KEY = ""  
+GROQ_API_KEY = ""
 GROQ_API_URL = ""
 
 def detect_faces(image_path):
@@ -52,20 +52,27 @@ def get_player_info(image_path):
                     {
                         "type": "text",
                         "text": """
-You are a highly intelligent AI specialized in identifying professional Formula 1 drivers from photographs. Carefully analyze the uploaded image and match the visible face to an F1 driver who has competed in the Formula 1 World Championship at any point in history.
+You are a highly intelligent AI specialized in identifying professional Formula 1 drivers from photographs. Carefully analyze the uploaded image and match the visible face to a Formula 1 driver who has competed in the FIA Formula One World Championship at any point in history.
 
-Respond with the following structured information if a well-known F1 driver is identified:
+✅ Return the most **up-to-date and accurate information as of 2025**, especially regarding the driver's current or most iconic **team**, **status**, and **achievements**.
 
-- **Full Name**: (Driver's complete name)
+🛑 If the driver is no longer racing, clearly mention whether they are **Retired** or **Deceased**, and provide the **year of retirement or death** if known.
+
+Respond in the following structured format if a well-known F1 driver is identified:
+
+- **Full Name**: (Driver’s complete name)
 - **Nationality**: (Country they race(d) under)
-- **Team**: (Most recent or most iconic team)
-- **Car Number**: (Current or most recognized racing number)
-- **Championships**: (Notable achievements — World Titles, Wins, or Records — max 3-4)
+- **Team**: (Most recent or most iconic team, include current if known as of 2025)
+- **Car Number**: (Current or most recognized number)
+- **Status**: (*Active*, *Retired YYYY*, or *Deceased YYYY*)
+- **Championships**: (Major achievements — World Titles, Race Wins, Records — max 3–4)
 
-If multiple people are in the image, return only the **most famous driver**.
+If you are unsure about the driver's current status or team, say: *"As of my latest knowledge, [details]."* This helps indicate if the information might be outdated.
 
-If the person in the image is **not** an F1 driver or the face is not clearly visible, respond with:
-**"Unknown"**.
+If multiple drivers are visible, return details for the **most famous one only**.
+
+If the person in the image is **not a Formula 1 driver** or the face is **not clearly visible**, respond with:
+**"Unknown"**
 """
                     },
                     {
@@ -89,8 +96,12 @@ If the person in the image is **not** an F1 driver or the face is not clearly vi
     else:
         return "Unknown"
 
-@app.route("/", methods=["GET", "POST"])
-def index():
+@app.route("/")
+def intro():
+    return render_template("intro.html")
+
+@app.route("/detect", methods=["GET", "POST"])
+def detect():
     player_info = ""
     result_img_filename = ""
 
