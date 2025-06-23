@@ -74,6 +74,7 @@ If multiple drivers are visible, return details for the **most famous one only**
 If the person in the image is **not a Formula 1 driver** or the face is **not clearly visible**, respond with:
 **"Unknown"**
 """
+
                     },
                     {
                         "type": "image_url",
